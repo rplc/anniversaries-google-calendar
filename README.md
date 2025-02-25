@@ -19,6 +19,7 @@ Das [Google Apps Script](https://script.google.com) "[anniversariesGoogleCalenda
 * Ermittele die Kalender-ID (Kalender links auswählen > [Kalendereinstellungen] > Kalender-ID).
 * Setze den Wert der Variable `calendarId` im Skript [anniversariesGoogleCalendar.gs](anniversariesGoogleCalendar.gs) auf die ermittelte Kalender-ID, durch ersetzen des Platzhalters `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com`.
 * Optional: Kopiere die eigene E-Mail-Adresse in den Wert der Variable `recipientEmail` (z. B.: `var recipientEmail = 'anything@mailexample.com';`).
+* Optional: in getAllContactsEvents eine contactGroupId eintragen, für die man Event Benachrichtigungen haben will (Google Contacts, Label in der linken Toolbar öffnen, letzten Part der URL kopieren)
 * Führe das Skript einmalig manuell aus (> [Ausführen]) und akzeptiere die angeforderten Berechtigungen (Kontakte, Kalender und E-Mails). Die Warnung "Google hat diese App nicht überprüft" muss akzeptiert werden, wobei unter Entwickler der eigene Google-Account genannt sein sollte (> [Erweitert] > [Unbekanntes Projekt öffnen (unsicher)]). Nach der Ausführung des Skripts (siehe Ausführungsprotokoll im unteren Bereich des Fensters) sollten bereits alle Termine im Kalender erstellt worden sein.
 * Setze einen Trigger für das Projekt (z. B.: Links [Trigger] auswählen > [Trigger hinzufügen] > Auszuführende Funktion: anniversaryEvents, Ereignisquelle: Zeitgesteuert, Zeitbasierter Trigger: Tagestimer, Tageszeit: 8:00 bis 9:00 Uhr > [Speichern]). Nun wird das Skript, abhängig vom Trigger, z. B. täglich ausgeführt.
 
@@ -36,6 +37,7 @@ The [Google Apps Script](https://script.google.com) "[anniversariesGoogleCalenda
 * Retrieve the calendar ID (select the calendar on the left > [Calendar settings] > Calendar ID).
 * Set the variable `calendarId` in the script [anniversariesGoogleCalendar.gs](anniversariesGoogleCalendar.gs) to the retrieved calendar ID by replacing the placeholder `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com`.
 * Optionally, copy your own email address into the `recipientEmail` variable (e.g., `var recipientEmail = 'anything@mailexample.com';`).
+* Optionally: if you want reminders for a contact group/label add the contactGroupId in getAllContactsEvents (Google Contacts, open the label in the left toolbar, copy the last part of the url)
 * Run the project manually once (> [Run]) and accept the requested permissions (Contacts, Calendar, and Email). You will need to accept the "Google hasn’t verified this app" warning, ensuring your own Google account appears under Developer (> [Advanced] > [Go to Untitled project (unsafe)]). After the script completes (see the Execution Log at the bottom of the window), all calendar events should already be created.
 * Set a trigger for the project (e.g., select [Triggers] on the left > [Add Trigger] > Function to run: anniversaryEvents, Event source: Time-driven, Time based trigger: Day timer, Time of day: 8am to 9am > [Save]). The script will now run according to the trigger, e.g., daily.
 
