@@ -76,13 +76,14 @@ function getAllContactsEvents() {
                     if (contact.birthdays) {
                         contact.birthdays.forEach((birthday) => {
                             if (birthday.date) {
-                                var year = birthday.date.year || currentYear,
-                                    eventDate = new Date(year, birthday.date.month - 1, birthday.date.day);
+                                var year = birthday.date.year,
+                                    eventDate = new Date(year || currentYear, birthday.date.month - 1, birthday.date.day),
+                                    eventTitle = year ? `${name} (${year})` : name;
 
                                 contactsEvents.push({
-                                    title: `Birthday: ${name}`,
+                                    title: eventTitle,
                                     date: eventDate,
-                                    contactId: contact.resourceName
+                                    contactId: contact.resourceName,
                                 });
                             }
                         });
@@ -91,13 +92,18 @@ function getAllContactsEvents() {
                     if (contact.events) {
                         contact.events.forEach((event) => {
                             if (event.date && event.formattedType) {
-                                var year = event.date.year || currentYear,
-                                    eventDate = new Date(year, event.date.month - 1, event.date.day);
+                                var year = event.date.year,
+                                    eventDate = new Date(year || currentYear, event.date.month - 1, event.date.day),
+                                    eventTitle = event.formattedType + ": " + name;
+
+                                if (year) {
+                                    eventTitle = `${eventTitle} (${year})`;
+                                }
 
                                 contactsEvents.push({
-                                    title: `${event.formattedType}: ${name}`,
+                                    title: eventTitle,
                                     date: eventDate,
-                                    contactId: contact.resourceName
+                                    contactId: contact.resourceName,
                                 });
                             }
                         });
