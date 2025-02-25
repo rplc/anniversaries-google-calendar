@@ -1,9 +1,9 @@
 # anniversariesGoogleCalendar
-\* English version below
 
 ### Metainformation  
 Author: [JohnDOEbug](http://github.com/JohnDOEbug)  
 Publishing time: 11-2024
+Org Repo: https://github.com/JohnDOEbug/anniversariesGoogleCalendar
 
 ---
 ---
