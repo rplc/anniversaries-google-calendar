@@ -74,8 +74,8 @@ function getAllContactsEvents() {
                     var name = contact.names && contact.names[0] ? contact.names[0].displayName : 'Unknown Name',
                         currentYear = new Date().getFullYear(), // Just in case no year is defined in contact
                         memberships = contact.getMemberships(),
-                        reminder = memberships.find(
-                            (membership) => membership?.contactGroupMembership?.contactGroupId === reminderContactGroupId);
+                        reminder = !!memberships.find((membership) =>
+                            membership?.contactGroupMembership?.contactGroupId === reminderContactGroupId);
 
                     if (contact.birthdays) {
                         contact.birthdays.forEach((birthday) => {
@@ -99,7 +99,7 @@ function getAllContactsEvents() {
                             if (event.date && event.formattedType) {
                                 var year = event.date.year,
                                     eventDate = new Date(year || currentYear, event.date.month - 1, event.date.day),
-                                    eventTitle = event.formattedType + ": " + name;
+                                    eventTitle = `${event.formattedType}: ${name}`;
 
                                 if (year) {
                                     eventTitle = `${eventTitle} (${year})`;
@@ -182,10 +182,9 @@ function compareAndSyncEvents(contactEvents, calendarEvents) {
 
             return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth();
         },
-        checkEventEquality = (contactEvent, calEvent) => {
-            return calEvent.title === contactEvent.title && isSameDayAndMonth(calEvent.date, contactEvent.date) &&
-                calEvent.contactId === contactEvent.contactId && contactEvent.reminder === calEvent.reminder;
-        };
+        checkEventEquality = (contactEvent, calEvent) => calEvent.title === contactEvent.title &&
+                isSameDayAndMonth(calEvent.date, contactEvent.date) && calEvent.contactId === contactEvent.contactId &&
+                contactEvent.reminder === calEvent.reminder;
 
     contactEvents.forEach((contactEvent) => {
         var matchingCalendarEvent = calendarEvents.find((calEvent) => checkEventEquality(contactEvent, calEvent));
