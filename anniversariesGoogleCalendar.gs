@@ -8,7 +8,7 @@
  * occurred and a recipient email is provided.
  */
 function anniversaryEvents() {
-    var calendarId = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com', // Set your Google Calendar ID here
+    var calendarId = 'xxxxxx@group.calendar.google.com', // Set your Google Calendar ID here
         recipientEmail = '', // Set your E-Mail address here (optional)
 
         currentYear = new Date().getFullYear(),
@@ -56,12 +56,13 @@ function anniversaryEvents() {
 function getAllContactsEvents() {
     var contactsEvents = [],
         pageToken,
-        pageSize = 100;
+        pageSize = 100,
+        reminderContactGroupId = 'xxx';
 
     do {
         try {
             var response = People.People.Connections.list('people/me', {
-                    personFields: 'names,birthdays,events',
+                    personFields: 'names,birthdays,events,memberships',
                     pageSize,
                     pageToken
                 }),
@@ -71,7 +72,10 @@ function getAllContactsEvents() {
             if (connections) {
                 connections.forEach((contact) => {
                     var name = contact.names && contact.names[0] ? contact.names[0].displayName : 'Unknown Name',
-                        currentYear = new Date().getFullYear(); // Just in case no year is defined in contact
+                        currentYear = new Date().getFullYear(), // Just in case no year is defined in contact
+                        memberships = contact.getMemberships(),
+                        reminder = memberships.find(
+                            (membership) => membership?.contactGroupMembership?.contactGroupId === reminderContactGroupId);
 
                     if (contact.birthdays) {
                         contact.birthdays.forEach((birthday) => {
@@ -84,6 +88,7 @@ function getAllContactsEvents() {
                                     title: eventTitle,
                                     date: eventDate,
                                     contactId: contact.resourceName,
+                                    reminder
                                 });
                             }
                         });
@@ -104,6 +109,7 @@ function getAllContactsEvents() {
                                     title: eventTitle,
                                     date: eventDate,
                                     contactId: contact.resourceName,
+                                    reminder
                                 });
                             }
                         });
@@ -151,7 +157,8 @@ function getAllCalendarEvents(calendarId, year) {
                 title: event.getTitle(),
                 date: event.getStartTime(),
                 contactId: matchedResourceName,
-                eventId: event.getId()
+                eventId: event.getId(),
+                reminder: !!(event.getPopupReminders() || []).length
             };
         });
 }
@@ -168,34 +175,31 @@ function getAllCalendarEvents(calendarId, year) {
  *   events to add or delete.
  */
 function compareAndSyncEvents(contactEvents, calendarEvents) {
-    var syncActions = [];
+    var syncActions = [],
+        isSameDayAndMonth = (date1, date2) => {
+            var d1 = new Date(date1),
+                d2 = new Date(date2);
 
-    function isSameDayAndMonth(date1, date2) {
-        var d1 = new Date(date1),
-            d2 = new Date(date2);
-
-        return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth();
-    }
+            return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth();
+        },
+        checkEventEquality = (contactEvent, calEvent) => {
+            return calEvent.title === contactEvent.title && isSameDayAndMonth(calEvent.date, contactEvent.date) &&
+                calEvent.contactId === contactEvent.contactId && contactEvent.reminder === calEvent.reminder;
+        };
 
     contactEvents.forEach((contactEvent) => {
-        var matchingCalendarEvent = calendarEvents.find(
-            (calendarEvent) => calendarEvent.title === contactEvent.title &&
-                isSameDayAndMonth(calendarEvent.date, contactEvent.date) &&
-                calendarEvent.contactId === contactEvent.contactId);
+        var matchingCalendarEvent = calendarEvents.find((calEvent) => checkEventEquality(contactEvent, calEvent));
 
         if (!matchingCalendarEvent) {
             syncActions.push(contactEvent);
         }
     });
 
-    calendarEvents.forEach((calendarEvent) => {
-        var matchingContactEvent = contactEvents.find(
-            (contactEvent) => contactEvent.title === calendarEvent.title &&
-                isSameDayAndMonth(contactEvent.date, calendarEvent.date) &&
-                contactEvent.contactId === calendarEvent.contactId);
+    calendarEvents.forEach((calEvent) => {
+        var matchingContactEvent = contactEvents.find((contactEvent) => checkEventEquality(contactEvent, calEvent));
 
         if (!matchingContactEvent) {
-            syncActions.push(calendarEvent);
+            syncActions.push(calEvent);
         }
     });
 
@@ -228,6 +232,11 @@ function createCalendarEvent(calendarId, event) {
         );
 
     series.setTransparency(CalendarApp.EventTransparency.TRANSPARENT);
+
+    if (event.reminder) {
+        // Sadly there is no way to add a reminder at 6:00 of the event day
+        series.addPopupReminder(10);
+    }
 
     return title;
 }
